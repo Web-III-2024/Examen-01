@@ -14,7 +14,7 @@ interface PokemonCardProps {
 const PokemonCard: React.FC<PokemonCardProps & { onClick: () => void }> = ({ id, name, image, types, abilities, onClick }) => {
   return (
     <div className="pokemon-card" onClick={onClick}>
-      <img src={image} alt={name} />
+      <img className="imagen" src={image} alt={name} />
       <h2 className="pokemon-name">{name}</h2>
       <div className="pokemon-types">
         {types.map(typeInfo => (  
@@ -22,7 +22,7 @@ const PokemonCard: React.FC<PokemonCardProps & { onClick: () => void }> = ({ id,
         ))}
       </div>
       <div className="pokemon-abilities">
-        <h4>Abilities:</h4>
+        <h4>Habilidades:</h4>
         {abilities.map(abilityInfo => (
           <span className="pokemon-ability" key={abilityInfo.ability.name}>{abilityInfo.ability.name}</span>
         ))}

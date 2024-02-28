@@ -9,7 +9,6 @@ import PokemonDetails from '../src/pages/PokemonDetails';
 
 
 // import PokeApi from "./pages/PokeApi";
-
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );

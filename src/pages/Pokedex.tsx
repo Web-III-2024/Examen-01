@@ -10,6 +10,17 @@ interface GenerationRange {
   limit: number;
 }
 
+interface Pokemon {
+  id: number;
+  name: string;
+  image: string;
+  types: Array<{ type: { name: string } }>;
+  abilities: Array<{ ability: { name: string } }>;
+  height: number;
+  weight: number;
+  moves: Array<{ move: { name: string } }>;
+}
+
 const generationRanges: Record<number, GenerationRange> = {
   1: { offset: 0, limit: 151 },
   2: { offset: 151, limit: 100 },
@@ -21,22 +32,13 @@ const generationRanges: Record<number, GenerationRange> = {
   8: { offset: 809, limit: 89 },
 };
 
-interface Pokemon {
-  id: number;
-  name: string;
-  image: string;
-  types: Array<{ type: { name: string } }>;
-  abilities: Array<{ ability: { name: string } }>;
-  height: number;
-  weight: number;
-}
-
 const Home = () => {
   const [generation, setGeneration] = useState(1);
   const [tempGeneration, setTempGeneration] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+  const [showMoves, setShowMoves] = useState(false);
   const navigate = useNavigate();
 
   const fetchPokemons = (gen: number) => {
@@ -56,12 +58,13 @@ const Home = () => {
           abilities: response.data.abilities,
           height: response.data.height,
           weight: response.data.weight,
+          moves: response.data.moves,
         }));
         setPokemons(pokemonData);
       })
       .catch((error) => console.error("Error fetching data: ", error));
   };
-  
+
   useEffect(() => {
     fetchPokemons(generation);
   }, [generation]);
@@ -80,9 +83,14 @@ const Home = () => {
     setGeneration(tempGeneration);
   };
 
+  const toggleShowMoves = () => {
+    setShowMoves(!showMoves);
+  };
+
   return (
     <div>
-      <select value={tempGeneration} onChange={(e) => setTempGeneration(Number(e.target.value))}>
+      <div className="filtros">
+      <select className="selector" value={tempGeneration} onChange={(e) => setTempGeneration(Number(e.target.value))}>
         {Object.keys(generationRanges).map((gen) => (
           <option key={gen} value={gen}>
             Generación {gen}
@@ -90,10 +98,10 @@ const Home = () => {
         ))}
       </select>
 
-      <button onClick={applyFilters}>Aplicar Filtros</button>
-
+      <button onClick={applyFilters} className="btn">Aplicar Filtros</button>
+      </div>
       <div className="pokemon-container">
-        {pokemons.map(pokemon => (
+        {pokemons.map((pokemon) => (
           <PokemonCard
             key={pokemon.id}
             id={pokemon.id}
@@ -106,18 +114,27 @@ const Home = () => {
         ))}
       </div>
 
-      {/* El modal para detalles del Pokémon */}
-      <Modal isOpen={isModalOpen} closeModal={closeModal}>
+      <Modal isOpen={isModalOpen} closeModal={closeModal} >
         {selectedPokemon && (
           <div className="pokemon-details">
-            <h1>Nombre de esta belleza: {selectedPokemon.name}</h1>
+            <h1>{selectedPokemon.name}</h1>
             <img src={selectedPokemon.image} alt={selectedPokemon.name} />
-            <h2>Number: {selectedPokemon.id}</h2>
-            <h2>Height: {selectedPokemon.height}</h2>
-            <h2>Weight: {selectedPokemon.weight}</h2>
-            <h2>Types: {selectedPokemon.types.map(type => type.type.name).join(", ")}</h2>
-            <h2>Abilities: {selectedPokemon.abilities.map(ability => ability.ability.name).join(", ")}</h2>
-            {/* Aquí podrías mostrar los movimientos si tienes esa información */}
+            <h4>Número: {selectedPokemon.id}</h4>
+            <h4>Altura: {selectedPokemon.height}</h4>
+            <h4>Peso: {selectedPokemon.weight}</h4>
+            <h4>Tipos: {selectedPokemon.types.map((type) => type.type.name).join(", ")}</h4>
+            <h4>Habilidades: {selectedPokemon.abilities.map((ability) => ability.ability.name).join(", ")}</h4>
+            <button className="botonzote" onClick={toggleShowMoves}>{showMoves ? "Ocultar Movimientos" : "Mostrar Movimientos"}</button>
+            {showMoves && (
+              <div className="contenedor-movimientos">
+                <h2>Movimientos:</h2>
+                <ul>
+                  {selectedPokemon.moves.map((move) => (
+                    <li key={move.move.name}>{move.move.name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </Modal>
